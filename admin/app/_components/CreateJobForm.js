@@ -2,15 +2,45 @@
 
 import { useForm } from "react-hook-form";
 import { OctagonAlert } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useState } from "react";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+import "react-quill-new/dist/quill.snow.css";
+import { createJob } from "../_lib/actions";
 
 export default function CreateJobForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    getValues,
+    setError,
+    clearErrors,
   } = useForm();
 
-  function handleCreate(formData) {}
+  const [description, setDescription] = useState("");
+
+  async function handleCreate(formData) {
+    const descriptionLength = description.trim().length;
+    if (descriptionLength < 20) {
+      setError("description", {
+        type: "minLength",
+        message: "Description must be at least 20 characters long",
+      });
+      return;
+    }
+    if (descriptionLength > 500) {
+      setError("description", {
+        type: "maxLength",
+        message: "Description must not exceed 500 characters",
+      });
+      return;
+    }
+
+    await createJob(formData);
+  }
 
   return (
     <form onSubmit={handleSubmit(handleCreate)}>
@@ -30,7 +60,18 @@ export default function CreateJobForm() {
 
       <div>
         <label htmlFor="description">Job description</label>
-        <textarea name="description"></textarea>
+        <ReactQuill
+          value={description}
+          onChange={(value) => {
+            setDescription(value);
+            setValue("description", value, { shouldValidate: true });
+            const descriptionLength = value.trim().length;
+            if (descriptionLength >= 20 && descriptionLength <= 500) {
+              clearErrors("description");
+            }
+          }}
+        />
+        {errors.description && <OctagonAlert size={15} color="#fd0808" />}
       </div>
 
       <div>
