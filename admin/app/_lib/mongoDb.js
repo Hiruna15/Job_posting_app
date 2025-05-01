@@ -15,7 +15,6 @@ export async function connectMongoose() {
       clientOptions
     );
   }
-  return mongooseConnection;
 }
 
 export async function getMongoClient() {
