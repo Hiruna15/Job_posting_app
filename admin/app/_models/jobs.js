@@ -50,6 +50,11 @@ const jobsSchema = new Schema(
       type: Number,
       required: true,
     },
+    admnistrator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
