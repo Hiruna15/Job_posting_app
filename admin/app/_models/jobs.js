@@ -38,7 +38,7 @@ const jobsSchema = new Schema(
       },
       default: "open",
     },
-    employementType: {
+    employmentType: {
       type: String,
       enum: {
         values: ["full-time", "part-time", "contract", "internship"],
@@ -54,6 +54,10 @@ const jobsSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

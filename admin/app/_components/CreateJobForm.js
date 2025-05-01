@@ -3,13 +3,14 @@
 import { useForm } from "react-hook-form";
 import { OctagonAlert } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 import { createJob } from "../_lib/actions";
+import { useRouter } from "next/navigation";
 
-export default function CreateJobForm() {
+export default function CreateJobForm({ mode, job }) {
   const {
     register,
     handleSubmit,
@@ -20,7 +21,24 @@ export default function CreateJobForm() {
     clearErrors,
   } = useForm();
 
+  const [isPending, startTransition] = useTransition();
+
   const [description, setDescription] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (job) {
+      setValue("title", job?.title || "");
+      setValue("description", job?.description || "");
+      setDescription(job?.description || "");
+      setValue("company", job?.company || "");
+      setValue("location", job?.location || "");
+      setValue("locationType", job?.locationType || "");
+      setValue("employmentType", job?.employmentType || "");
+      setValue("salary", job?.salary || 0);
+      setValue("status", job?.status || "");
+    }
+  }, [job, setValue]);
 
   async function handleCreate(formData) {
     const descriptionLength = description.trim().length;
@@ -31,7 +49,7 @@ export default function CreateJobForm() {
       });
       return;
     }
-    if (descriptionLength > 500) {
+    if (descriptionLength > 1500) {
       setError("description", {
         type: "maxLength",
         message: "Description must not exceed 500 characters",
@@ -39,7 +57,14 @@ export default function CreateJobForm() {
       return;
     }
 
-    await createJob(formData);
+    startTransition(async () => {
+      try {
+        await createJob(formData);
+        router.push("/dashboard/jobs");
+      } catch (err) {
+        console.log(err);
+      }
+    });
   }
 
   return (
@@ -54,6 +79,7 @@ export default function CreateJobForm() {
             minLength: 5,
             maxLength: 50,
           })}
+          disabled={isPending}
         />
         {errors.title && <OctagonAlert size={15} color="#fd0808" />}
       </div>
@@ -66,12 +92,15 @@ export default function CreateJobForm() {
             setDescription(value);
             setValue("description", value, { shouldValidate: true });
             const descriptionLength = value.trim().length;
-            if (descriptionLength >= 20 && descriptionLength <= 500) {
+            if (descriptionLength >= 20 && descriptionLength <= 1500) {
               clearErrors("description");
             }
           }}
+          readOnly={isPending}
+          theme="snow"
         />
         {errors.description && <OctagonAlert size={15} color="#fd0808" />}
+        {errors.description && <span>{errors.description.message}</span>}
       </div>
 
       <div>
@@ -84,6 +113,7 @@ export default function CreateJobForm() {
             minLength: 3,
             maxLength: 25,
           })}
+          disabled={isPending}
         />
         {errors.company && <OctagonAlert size={15} color="#fd0808" />}
       </div>
@@ -99,6 +129,7 @@ export default function CreateJobForm() {
               return value.trim().length > 0;
             },
           })}
+          disabled={isPending}
         />
         {errors.location && <OctagonAlert size={15} color="#fd0808" />}
       </div>
@@ -109,6 +140,7 @@ export default function CreateJobForm() {
           {...register("locationType", {
             required: true,
           })}
+          disabled={isPending}
         >
           <option value="">Select the location type</option>
           <option value="remote">Remote</option>
@@ -117,18 +149,23 @@ export default function CreateJobForm() {
         </select>
         {errors.locationType && <OctagonAlert size={15} color="#fd0808" />}
       </div>
-      {/* <div>
-        <label htmlFor="status">Status</label>
-        <select id="status" name="status">
-          <option value="open">Open</option>
-          <option value="closed">Closed</option>
-        </select>
-      </div> */}
+
+      {mode === "edit" && (
+        <div>
+          <label htmlFor="status">Status</label>
+          <select {...register("status")} name="status" disabled={isPending}>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+      )}
+
       <div>
         <label htmlFor="employmentType">Employment type</label>
         <select
           name="employmentType"
           {...register("employmentType", { required: true })}
+          disabled={isPending}
         >
           <option value="">Select the employement type</option>
           <option value="full-time">Full-time</option>
@@ -144,11 +181,20 @@ export default function CreateJobForm() {
           type="number"
           name="salary"
           {...register("salary", { required: true, min: 0 })}
+          disabled={isPending}
         />
         {errors.salary && <OctagonAlert size={15} color="#fd0808" />}
       </div>
 
-      <button type="submit">Create Job</button>
+      <button type="submit" disabled={isPending}>
+        {mode === "create"
+          ? isPending
+            ? "Creating Job...."
+            : "Create Job"
+          : isPending
+          ? "Editing Job...."
+          : "Edit Job"}
+      </button>
     </form>
   );
 }
