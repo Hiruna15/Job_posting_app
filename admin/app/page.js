@@ -1,4 +1,4 @@
-import LoginForm from "./_components/LoginForm";
+import LoginPage from "./_components/LoginPage";
 
 export const metadata = {
   title: "Admin login",
@@ -6,10 +6,8 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <div>
-      <h1>Admin login</h1>
-
-      <LoginForm />
-    </div>
+    <>
+      <LoginPage />
+    </>
   );
 }

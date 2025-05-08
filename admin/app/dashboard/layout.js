@@ -1,27 +1,24 @@
-import Link from "next/link";
+// import { ToastContainer, toast } from "react-toastify";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+import SideBar from "../_components/SideBar";
 
-export default function Layout({ children }) {
-  const sideBarTabs = [
-    { name: "DashBoard", href: "/dashboard" },
-    { name: "Jobs", href: "/dashboard/jobs" },
-    { name: "applications", href: "/dashboard/applications" },
-    { name: "Users", href: "/dashboard/users" },
-    { name: "Settings", href: "/dashboard/settings" },
-  ];
+export default async function Layout({ children }) {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/");
 
   return (
-    <div style={{ display: "flex", gap: "100px" }}>
-      <nav>
-        <ul>
-          {sideBarTabs.map((tab) => (
-            <li key={tab.name}>
-              <Link href={tab.href}>{tab.name}</Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div>{children}</div>
-    </div>
+    <main
+      style={{
+        display: "flex",
+        // gap: "1em",
+        height: "100%",
+      }}
+    >
+      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
+      <SideBar />
+      {children}
+    </main>
   );
 }

@@ -50,6 +50,25 @@ const jobsSchema = new Schema(
       type: Number,
       required: true,
     },
+    coverLetterRequired: {
+      type: Boolean,
+      default: false,
+    },
+    questions: {
+      type: [
+        {
+          question: {
+            type: String,
+            required: true,
+          },
+          required: {
+            type: Boolean,
+            default: false,
+          },
+        },
+      ],
+      default: [],
+    },
     admnistrator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -61,6 +80,19 @@ const jobsSchema = new Schema(
     },
   },
   { timestamps: true }
+);
+
+jobsSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    const jobId = this._id;
+
+    const db = mongoose.connection.db;
+    await db.collection("applications").deleteMany({ jobId });
+
+    next();
+  }
 );
 
 const JobsModel = mongoose.models.Job || model("Job", jobsSchema);

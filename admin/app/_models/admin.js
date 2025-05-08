@@ -1,23 +1,12 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-const { Schema, model } = mongoose;
+const { Schema } = mongoose;
 
 const passwordRegex =
   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
 
 const adminSchema = new Schema({
-  username: {
-    type: String,
-    required: [true, "username is required"],
-    min: [4, "username must have at least 4 characters"],
-    max: [20, "user cannot have more than 20 characters"],
-  },
-  role: {
-    type: String,
-    enum: { values: ["normal", "super"], message: "{VALUE} is not supported" },
-    default: "normal",
-  },
   email: {
     type: String,
     required: [true, "email is required"],
@@ -26,13 +15,18 @@ const adminSchema = new Schema({
   password: {
     type: String,
     required: [true, "password haven't been provided"],
-    // match: [passwordRegex, "The password is not a strong one"],
+    match: [passwordRegex, "The password is not a strong one"],
+  },
+  role: {
+    type: String,
+    enum: { values: ["normal", "super"], message: "{VALUE} is not supported" },
+    default: "normal",
   },
 });
 
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
