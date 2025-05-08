@@ -78,9 +78,5 @@ const jobsSchema = new Schema(
   { timestamps: true }
 );
 
-//*reminder = add a category field to this
-// add a questions field (array)
-// add a coverLetterRequired field
-
 const JobsModel = mongoose.models.Job || model("Job", jobsSchema);
 export default JobsModel;

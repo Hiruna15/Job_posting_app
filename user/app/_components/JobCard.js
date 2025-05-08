@@ -143,17 +143,6 @@ export default function JobCard({ job }) {
       </div>
 
       {status === "closed" && <span>{status}</span>}
-
-      {/* <h2>{title}</h2>
-      <p>{company}</p>
-      <p>{location}</p>
-      <p>{locationType}</p>
-      <p>{status}</p>
-      <p>{employmentType}</p>
-      <p>{salary}</p>
-      <p>{date}</p>
-
-      <button onClick={() => router.push(`/jobs/${jobId}`)}>View</button> */}
     </Card>
   );
 }

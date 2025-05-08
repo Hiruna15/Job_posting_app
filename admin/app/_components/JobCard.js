@@ -156,30 +156,6 @@ export default function JobCard({ job, setEditFormOpen, setEditFormJob }) {
           <MdDeleteOutline color="#ffffff" size={15} />
         </div>
       </LastTd>
-      {/* <div>
-        <p>{title}</p>
-        <p>{company}</p>
-        {location && <p>{location}</p>}
-        <p>{locationType}</p>
-        <p>{employmentType}</p>
-        {salary > 0 && <p>{salary}</p>}
-
-        <p>Created: {format(new Date(createdAt), "PPP")}</p>
-
-        {new Date(createdAt).getTime() !== new Date(updatedAt).getTime() && (
-          <p>Updated: {format(new Date(updatedAt), "PPP")}</p>
-        )}
-
-        <p>{status}</p>
-      </div>
-      <div>
-        <button onClick={() => router.push(`${pathName}/edit/${jobId}`)}>
-          Edit
-        </button>
-        <button onClick={handleDelete} disabled={isPending}>
-          {isPending ? "Deleting...." : "Delete"}
-        </button>
-      </div> */}
     </Tr>
   );
 }
